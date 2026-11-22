@@ -1,0 +1,70 @@
+print("Bajardi: Baxtiyorov Asilbek, guruh 073-24")
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# Ma'lumotlarni yuklash
+malumot = load_breast_cancer()
+X = malumot.data
+y = malumot.target
+
+# O'qitish va test qismlariga ajratish
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Ma'lumotlarni masshtablash
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Modelni yaratish va o'qitish
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+# Bashorat qilish
+y_pred = model.predict(X_test)
+
+# Aniqlik (Accuracy) foizini hisoblash
+aniqlik = accuracy_score(y_test, y_pred) * 100
+print("Model aniqligi (Accuracy):", round(aniqlik, 2), "%")
+
+# Chalkashlik matritsasi (Confusion Matrix)
+cm = confusion_matrix(y_test, y_pred)
+print("\nChalkashlik matritsasi:")
+print(cm)
+
+TP = cm[0][0]
+FN = cm[0][1]
+FP = cm[1][0]
+TN = cm[1][1]
+
+print("To'g'ri topilgan xavfli (TP):", TP)
+print("Xato topilgan xavfli (FN):", FN)
+print("Xato topilgan xavfsiz (FP):", FP)
+print("To'g'ri topilgan xavfsiz (TN):", TN)
+
+# Chalkashlik matritsasini rasmga chizish
+sinflar = ["Xavfli", "Xavfsiz"]
+
+plt.figure(figsize=(6, 5))
+plt.imshow(cm, cmap="Blues")
+plt.colorbar()
+
+plt.xticks([0, 1], sinflar)
+plt.yticks([0, 1], sinflar)
+plt.xlabel("Bashorat qilingan sinf")
+plt.ylabel("Haqiqiy sinf")
+plt.title(f"Chalkashlik matritsasi (Aniqlik: {aniqlik:.2f}%)")
+
+# Kataklar ichiga sonlarni yozish
+for i in range(2):
+    for j in range(2):
+        plt.text(j, i, cm[i][j], ha="center", va="center", fontsize=14, color="black")
+
+plt.tight_layout()
+plt.savefig("chalkashlik_matritsasi.png", dpi=150)
+plt.show()
